@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Play, Timer, CheckCircle2, XCircle, Zap, Brain, Target } from "lucide-react";
+import { ArrowLeft, Play, Timer, CheckCircle2, XCircle, Zap, Brain, Target, Bookmark, BookmarkCheck } from "lucide-react";
 import { flashcards } from "@/data/flashcards";
 
 interface GameCard {
@@ -12,6 +12,23 @@ interface GameCard {
   correctAnswer: string;
   wrongAnswer: string;
   category: string;
+}
+
+interface CardResult {
+  cardId: string;
+  question: string;
+  category: string;
+  wasCorrect: boolean;
+  selectedAnswer: string | null;
+  correctAnswer: string;
+  timestamp: string;
+  markedForReview: boolean;
+}
+
+interface GameHistory {
+  results: CardResult[];
+  totalGames: number;
+  lastPlayed: string;
 }
 
 type GameState = "config" | "thinking" | "answering" | "result" | "finished";
@@ -38,6 +55,8 @@ export default function FlashcardGame() {
   const [score, setScore] = useState(0);
   const [gameCards, setGameCards] = useState<GameCard[]>([]);
   const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
+  const [gameResults, setGameResults] = useState<CardResult[]>([]);
+  const [markedForReview, setMarkedForReview] = useState(false);
 
   // Prepara as cartas do jogo
   useEffect(() => {
@@ -90,26 +109,82 @@ export default function FlashcardGame() {
     setCurrentCardIndex(0);
     setScore(0);
     setSelectedAnswer(null);
+    setGameResults([]);
+    setMarkedForReview(false);
   };
 
   const handleAnswer = (answer: string | null) => {
     setSelectedAnswer(answer);
     
-    if (answer === currentCard.correctAnswer) {
+    const wasCorrect = answer === currentCard.correctAnswer;
+    
+    if (wasCorrect) {
       setScore((prevScore) => prevScore + 1);
     }
     
+    // Registra o resultado
+    const result: CardResult = {
+      cardId: currentCard.id,
+      question: currentCard.question,
+      category: currentCard.category,
+      wasCorrect,
+      selectedAnswer: answer,
+      correctAnswer: currentCard.correctAnswer,
+      timestamp: new Date().toISOString(),
+      markedForReview: false,
+    };
+    
+    setGameResults((prev) => [...prev, result]);
     setGameState("result");
+  };
+
+  const handleToggleReview = () => {
+    setMarkedForReview(!markedForReview);
+    
+    // Atualiza o último resultado
+    setGameResults((prev) => {
+      const updated = [...prev];
+      if (updated.length > 0) {
+        updated[updated.length - 1].markedForReview = !markedForReview;
+      }
+      return updated;
+    });
   };
 
   const handleNextCard = () => {
     if (currentCardIndex + 1 < gameCards.length) {
       setCurrentCardIndex(currentCardIndex + 1);
       setSelectedAnswer(null);
+      setMarkedForReview(false);
       setGameState("thinking");
       setTimer(difficultyConfig[difficulty].time);
     } else {
+      // Salva os resultados no localStorage
+      saveGameHistory();
       setGameState("finished");
+    }
+  };
+
+  const saveGameHistory = () => {
+    try {
+      const existingHistory = localStorage.getItem("flashcard-game-history");
+      const history: GameHistory = existingHistory 
+        ? JSON.parse(existingHistory)
+        : { results: [], totalGames: 0, lastPlayed: "" };
+      
+      // Adiciona os resultados do jogo atual
+      history.results = [...history.results, ...gameResults];
+      history.totalGames += 1;
+      history.lastPlayed = new Date().toISOString();
+      
+      // Mantém apenas os últimos 100 resultados para não sobrecarregar
+      if (history.results.length > 100) {
+        history.results = history.results.slice(-100);
+      }
+      
+      localStorage.setItem("flashcard-game-history", JSON.stringify(history));
+    } catch (error) {
+      console.error("Erro ao salvar histórico:", error);
     }
   };
 
@@ -118,6 +193,8 @@ export default function FlashcardGame() {
     setCurrentCardIndex(0);
     setScore(0);
     setSelectedAnswer(null);
+    setGameResults([]);
+    setMarkedForReview(false);
   };
 
   if (gameCards.length === 0) {
@@ -227,6 +304,8 @@ export default function FlashcardGame() {
   // Tela de Jogo Finalizado
   if (gameState === "finished") {
     const finalScore = Math.round((score / gameCards.length) * 100);
+    const markedCards = gameResults.filter((r) => r.markedForReview);
+    const incorrectCards = gameResults.filter((r) => !r.wasCorrect);
     
     return (
       <div className="flex-1 flex flex-col">
@@ -242,23 +321,85 @@ export default function FlashcardGame() {
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center max-w-md"
+            className="w-full max-w-2xl"
           >
-            <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 size={48} className="text-primary" />
+            <div className="text-center mb-8">
+              <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 size={48} className="text-primary" />
+              </div>
+              <h1 className="text-3xl font-bold mb-2">Jogo Finalizado!</h1>
+              <p className="text-6xl font-bold text-primary my-6">{finalScore}%</p>
+              <p className="text-muted-foreground mb-2">
+                Você acertou {score} de {gameCards.length} perguntas
+              </p>
+              <p className="text-sm text-muted-foreground mb-8">
+                Dificuldade: {difficultyConfig[difficulty].label}
+              </p>
             </div>
-            <h1 className="text-3xl font-bold mb-2">Jogo Finalizado!</h1>
-            <p className="text-6xl font-bold text-primary my-6">{finalScore}%</p>
-            <p className="text-muted-foreground mb-2">
-              Você acertou {score} de {gameCards.length} perguntas
-            </p>
-            <p className="text-sm text-muted-foreground mb-8">
-              Dificuldade: {difficultyConfig[difficulty].label}
-            </p>
+
+            {/* Estatísticas */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <CheckCircle2 size={20} className="text-green-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{score}</p>
+                    <p className="text-xs text-muted-foreground">Acertos</p>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                    <XCircle size={20} className="text-red-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{incorrectCards.length}</p>
+                    <p className="text-xs text-muted-foreground">Erros</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Cards marcados para revisão */}
+            {markedCards.length > 0 && (
+              <Card className="p-6 mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <BookmarkCheck size={20} className="text-primary" />
+                  <h3 className="font-semibold">Marcados para Revisão ({markedCards.length})</h3>
+                </div>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {markedCards.map((card, index) => (
+                    <div
+                      key={index}
+                      className="p-3 rounded-lg bg-muted border border-border"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-primary uppercase mb-1">
+                            {card.category}
+                          </p>
+                          <p className="text-sm line-clamp-2">{card.question}</p>
+                        </div>
+                        {card.wasCorrect ? (
+                          <CheckCircle2 size={16} className="text-green-500 flex-shrink-0" />
+                        ) : (
+                          <XCircle size={16} className="text-red-500 flex-shrink-0" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
             <div className="flex gap-3 justify-center">
               <Button onClick={handlePlayAgain} size="lg">
                 Jogar Novamente
@@ -419,9 +560,30 @@ export default function FlashcardGame() {
                   )}
                 </div>
 
-                <Button onClick={handleNextCard} className="w-full" size="lg">
-                  {currentCardIndex + 1 < gameCards.length ? "Próximo Card" : "Ver Resultado"}
-                </Button>
+                <div className="space-y-3">
+                  <Button onClick={handleNextCard} className="w-full" size="lg">
+                    {currentCardIndex + 1 < gameCards.length ? "Próximo Card" : "Ver Resultado"}
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleToggleReview}
+                    variant="outline"
+                    className="w-full"
+                    size="lg"
+                  >
+                    {markedForReview ? (
+                      <>
+                        <BookmarkCheck size={18} className="mr-2" />
+                        Marcado para Revisão
+                      </>
+                    ) : (
+                      <>
+                        <Bookmark size={18} className="mr-2" />
+                        Marcar para Revisão
+                      </>
+                    )}
+                  </Button>
+                </div>
               </Card>
             </motion.div>
           )}
