@@ -5,7 +5,7 @@ import { useState } from "react";
 const navItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Meus Decks", url: "/decks", icon: Library },
-  { title: "Flashcards", url: "/flashcards", icon: GraduationCap },
+  { title: "Simulados AWS", url: "/simulados", icon: GraduationCap },
   { title: "Configurações", url: "/settings", icon: Settings },
 ];
 
