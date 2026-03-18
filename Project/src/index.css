@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 32 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 28% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 32 100% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 215 28% 20%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 32 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 26%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 28% 28%;
+    --sidebar-ring: 32 100% 50%;
+
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05), 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 215 28% 16%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 215 28% 16%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 32 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 28% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 28% 20%;
+    --muted-foreground: 215 16% 56%;
+
+    --accent: 215 28% 22%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 215 28% 24%;
+    --input: 215 28% 24%;
+    --ring: 32 100% 50%;
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 32 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 28% 16%;
+    --sidebar-ring: 32 100% 50%;
+
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.2), 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Geist Sans', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.03em;
+    font-weight: 500;
+  }
+}
+
+@layer utilities {
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
