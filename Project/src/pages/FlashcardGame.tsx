@@ -37,6 +37,7 @@ export default function FlashcardGame() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [gameCards, setGameCards] = useState<GameCard[]>([]);
+  const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
 
   // Prepara as cartas do jogo
   useEffect(() => {
@@ -73,7 +74,15 @@ export default function FlashcardGame() {
         }
       }
     }
-  }, [timer, gameState, answeringTime]);
+  }, [timer, gameState]);
+
+  // Embaralha as opções quando muda de card ou entra no estado "answering"
+  useEffect(() => {
+    if (gameState === "answering" && currentCard) {
+      const options = [currentCard.correctAnswer, currentCard.wrongAnswer].sort(() => Math.random() - 0.5);
+      setShuffledOptions(options);
+    }
+  }, [gameState, currentCardIndex]);
 
   const handleStartGame = () => {
     setGameState("thinking");
@@ -87,7 +96,7 @@ export default function FlashcardGame() {
     setSelectedAnswer(answer);
     
     if (answer === currentCard.correctAnswer) {
-      setScore(score + 1);
+      setScore((prevScore) => prevScore + 1);
     }
     
     setGameState("result");
@@ -121,8 +130,6 @@ export default function FlashcardGame() {
 
   const currentCard = gameCards[currentCardIndex];
   const progress = ((currentCardIndex + 1) / gameCards.length) * 100;
-
-  // Tela de Configuração
   if (gameState === "config") {
     return (
       <div className="flex-1 flex flex-col">
@@ -266,9 +273,6 @@ export default function FlashcardGame() {
     );
   }
 
-  // Randomiza a ordem das opções
-  const options = [currentCard.correctAnswer, currentCard.wrongAnswer].sort(() => Math.random() - 0.5);
-
   return (
     <div className="flex-1 flex flex-col">
       {/* Progress bar */}
@@ -349,9 +353,9 @@ export default function FlashcardGame() {
                 </p>
                 
                 <div className="space-y-3">
-                  {options.map((option, index) => (
+                  {shuffledOptions.map((option, index) => (
                     <motion.button
-                      key={index}
+                      key={`option-${index}-${option.substring(0, 20)}`}
                       onClick={() => handleAnswer(option)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
