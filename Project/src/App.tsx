@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import StudyView from "@/pages/StudyView";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
+import FlashcardGame from "@/pages/FlashcardGame";
 
 const queryClient = new QueryClient();
 
@@ -51,12 +52,10 @@ const App = () => (
             }
           />
           <Route
-            path="/simulados"
+            path="/flashcards"
             element={
               <AppLayout>
-                <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                  Simulados em breve
-                </div>
+                <FlashcardGame />
               </AppLayout>
             }
           />
