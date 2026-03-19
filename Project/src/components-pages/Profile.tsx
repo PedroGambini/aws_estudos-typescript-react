@@ -232,12 +232,6 @@ export default function Profile() {
             </div>
           </Card>
         </motion.div>
-                  Editar Perfil
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
 
         {/* Estatísticas Principais */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
