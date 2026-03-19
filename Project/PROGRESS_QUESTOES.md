@@ -2,14 +2,14 @@
 
 ## ✅ Concluído
 
-### EC2 - Fundamentos (COMPLETO - 50 questões)
+### EC2 - Fundamentos (COMPLETO - 45 questões)
 - ✅ Nível 1: Introdução ao EC2 (5 questões)
 - ✅ Nível 2: Tipos de Instância (10 questões)
 - ✅ Nível 3: Modelos de Preço (10 questões)
 - ✅ Nível 4: Auto Scaling (10 questões)
 - ✅ Nível 5: Otimização Avançada (10 questões)
 
-**Status**: 🎉 Curso EC2 100% completo e pronto para uso!
+**Status**: 🎉 Curso EC2 100% completo, integrado e pronto para teste!
 
 ## 🔄 Em Andamento
 
@@ -34,12 +34,12 @@
 ## 📊 Estatísticas
 
 ### Questões Criadas
-- EC2: 50/50 (100%) ✅
+- EC2: 45/45 (100%) ✅ - INTEGRADO
 - S3: 5/45 (11%) 
 - Lambda: 5/35 (14%)
 - EBS: 0/20 (0%)
 
-**Total**: 60/150 questões (40% completo)
+**Total**: 55/145 questões (38% completo)
 
 ### Próximos Passos
 1. Criar questões S3 Níveis 2-5 (40 questões)
