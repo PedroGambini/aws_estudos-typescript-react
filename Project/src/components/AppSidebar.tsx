@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, Settings, Sparkles, LogOut } from "lucide-react";
+import { Home, BookOpen, Settings, Sparkles, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,7 +15,8 @@ export function AppSidebar() {
   const { signOut } = useAuth();
 
   const navItems = [
-    { title: t("profile"), url: "/", icon: Home },
+    { title: "Dashboard", url: "/", icon: Home },
+    { title: "Meu Perfil", url: "/profile", icon: User },
     { title: t("flashcards"), url: "/flashcards", icon: BookOpen },
     { title: t("settings"), url: "/settings", icon: Settings },
   ];

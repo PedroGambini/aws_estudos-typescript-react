@@ -14,32 +14,110 @@ import {
   Star
 } from "lucide-react";
 import { getGameStats } from "@/utils/gameHistory";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
+import { getProfile, getAllCategoryStats, getGameHistory } from "@/lib/supabase/queries";
 
 export default function Profile() {
-  // Dados fake do usuário
-  const userData = {
-    name: "João Silva",
-    email: "joao.silva@email.com",
-    avatar: "JS",
-    level: 12,
-    xp: 2450,
-    xpToNextLevel: 3000,
-    accountCreated: "2024-01-15",
-    totalStudyTime: "24h 35min",
-  };
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    name: "Carregando...",
+    email: "...",
+    avatar: "?",
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 100,
+    accountCreated: new Date().toISOString(),
+    totalStudyTime: "0h 0min",
+  });
+  const [categoryStats, setCategoryStats] = useState<any[]>([]);
+  const [gameHistory, setGameHistory] = useState<any[]>([]);
 
-  // Pega estatísticas reais do jogo
+  useEffect(() => {
+    if (!user) return;
+
+    const loadUserData = async () => {
+      try {
+        // Buscar perfil do usuário
+        const profile = await getProfile(user.id);
+        
+        // Buscar estatísticas por categoria
+        const stats = await getAllCategoryStats(user.id);
+        setCategoryStats(stats);
+
+        // Buscar histórico de jogos
+        const history = await getGameHistory(user.id, 20);
+        setGameHistory(history);
+
+        // Calcular estatísticas gerais
+        const totalStudied = stats.reduce((acc, stat) => acc + stat.total_studied, 0);
+        const totalCorrect = stats.reduce((acc, stat) => acc + stat.total_correct, 0);
+        const totalIncorrect = stats.reduce((acc, stat) => acc + stat.total_incorrect, 0);
+        const totalCards = totalCorrect + totalIncorrect;
+        
+        // Calcular tempo total (estimativa: 30s por card)
+        const totalMinutes = Math.floor((totalCards * 30) / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        // Calcular nível baseado no total de acertos (100 acertos = 1 nível)
+        const level = Math.floor(totalCorrect / 100) + 1;
+        const xp = totalCorrect % 100;
+        const xpToNextLevel = 100;
+
+        // Pegar iniciais do nome
+        const nameParts = (profile?.full_name || user.email || "User").split(' ');
+        const initials = nameParts.length > 1 
+          ? `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase()
+          : nameParts[0].substring(0, 2).toUpperCase();
+
+        setUserData({
+          name: profile?.full_name || user.email?.split('@')[0] || "Usuário",
+          email: user.email || "",
+          avatar: initials,
+          level,
+          xp,
+          xpToNextLevel,
+          accountCreated: profile?.created_at || user.created_at || new Date().toISOString(),
+          totalStudyTime: `${hours}h ${minutes}min`,
+        });
+      } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [user]);
+
+  // Pega estatísticas reais do jogo (localStorage)
   const stats = getGameStats();
+  
+  // Calcula estatísticas combinadas (localStorage + Supabase)
+  const totalCorrectCards = stats.correctCards + categoryStats.reduce((acc, stat) => acc + stat.total_correct, 0);
+  const totalIncorrectCards = stats.incorrectCards + categoryStats.reduce((acc, stat) => acc + stat.total_incorrect, 0);
+  const totalCards = totalCorrectCards + totalIncorrectCards;
+  const accuracy = totalCards > 0 ? Math.round((totalCorrectCards / totalCards) * 100) : 0;
   
   // Calcula qual dificuldade mais jogou (fake por enquanto)
   const mostPlayedDifficulty = "Médio";
   
-  // Calcula tempo médio por card (fake)
-  const averageTimePerCard = stats.totalCards > 0 
-    ? Math.round((24 * 60 + 35) / stats.totalCards) 
+  // Calcula tempo médio por card
+  const averageTimePerCard = totalCards > 0 
+    ? Math.round((parseInt(userData.totalStudyTime.split('h')[0]) * 3600 + parseInt(userData.totalStudyTime.split('h')[1].split('min')[0]) * 60) / totalCards) 
     : 0;
 
   const levelProgress = (userData.xp / userData.xpToNextLevel) * 100;
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 p-8 overflow-y-auto bg-gradient-to-br from-background via-background to-violet-50/30 dark:to-violet-950/10">
@@ -117,7 +195,7 @@ export default function Profile() {
                   <Trophy size={24} className="text-white" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.correctCards}</p>
+                  <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{totalCorrectCards}</p>
                   <p className="text-sm text-muted-foreground">Cards Acertados</p>
                 </div>
               </div>
@@ -171,7 +249,7 @@ export default function Profile() {
                   <TrendingUp size={24} className="text-white" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.accuracy}%</p>
+                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{accuracy}%</p>
                   <p className="text-sm text-muted-foreground">Taxa de Acerto</p>
                 </div>
               </div>
@@ -196,19 +274,19 @@ export default function Profile() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between py-3 border-b border-border">
                   <span className="text-muted-foreground">Total de Jogos</span>
-                  <span className="font-semibold">{stats.totalGames}</span>
+                  <span className="font-semibold">{stats.totalGames + gameHistory.length}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-border">
                   <span className="text-muted-foreground">Total de Cards</span>
-                  <span className="font-semibold">{stats.totalCards}</span>
+                  <span className="font-semibold">{totalCards}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-border">
                   <span className="text-muted-foreground">Cards Corretos</span>
-                  <span className="font-semibold text-green-500">{stats.correctCards}</span>
+                  <span className="font-semibold text-green-500">{totalCorrectCards}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-border">
                   <span className="text-muted-foreground">Cards Incorretos</span>
-                  <span className="font-semibold text-red-500">{stats.incorrectCards}</span>
+                  <span className="font-semibold text-red-500">{totalIncorrectCards}</span>
                 </div>
                 <div className="flex items-center justify-between py-3">
                   <span className="text-muted-foreground">Marcados para Revisão</span>
