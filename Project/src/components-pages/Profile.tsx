@@ -15,7 +15,8 @@ import {
   Zap,
   Star,
   Edit,
-  Users
+  Users,
+  LogOut
 } from "lucide-react";
 import { getGameStats } from "@/utils/gameHistory";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,7 +26,7 @@ import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { FriendsDialog } from "@/components/FriendsDialog";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [friendsDialogOpen, setFriendsDialogOpen] = useState(false);
@@ -140,25 +141,6 @@ export default function Profile() {
               Acompanhe seu progresso e estatísticas
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFriendsDialogOpen(true)}
-              className="hidden sm:flex"
-            >
-              <Users size={16} className="mr-2" />
-              Amigos
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setFriendsDialogOpen(true)}
-              className="sm:hidden"
-            >
-              <Users size={16} />
-            </Button>
-          </div>
         </div>
 
         {/* Perfil Principal */}
@@ -193,7 +175,7 @@ export default function Profile() {
                 <p className="text-sm sm:text-base text-muted-foreground mb-4 break-all">{userData.email}</p>
 
                 {/* Barra de Progresso XP */}
-                <div className="space-y-2 mb-4">
+                <div className="space-y-2 mb-6">
                   <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Progresso para o próximo nível</span>
                     <span className="font-medium">
@@ -210,14 +192,46 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Edit Button */}
-                <Button
-                  onClick={() => setEditDialogOpen(true)}
-                  variant="outline"
-                  size="sm"
-                  className="w-full sm:w-auto"
-                >
-                  <Edit size={16} className="mr-2" />
+                {/* Action Buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Button
+                    onClick={() => setEditDialogOpen(true)}
+                    variant="outline"
+                    size="lg"
+                    className="w-full justify-start h-auto py-4 px-4"
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                        <Edit size={20} className="text-violet-600 dark:text-violet-400" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold text-sm">Editar Perfil</p>
+                        <p className="text-xs text-muted-foreground">Alterar foto e nome</p>
+                      </div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => setFriendsDialogOpen(true)}
+                    variant="outline"
+                    size="lg"
+                    className="w-full justify-start h-auto py-4 px-4"
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                        <Users size={20} className="text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold text-sm">Adicionar Amigos</p>
+                        <p className="text-xs text-muted-foreground">Conecte-se com outros</p>
+                      </div>
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
                   Editar Perfil
                 </Button>
               </div>
@@ -433,6 +447,24 @@ export default function Profile() {
               </div>
             </div>
           </Card>
+        </motion.div>
+
+        {/* Logout Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.8 }}
+          className="mt-6"
+        >
+          <Button
+            onClick={signOut}
+            variant="outline"
+            size="lg"
+            className="w-full justify-center text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 border-red-200 dark:border-red-900"
+          >
+            <LogOut size={20} className="mr-2" />
+            Sair da Conta
+          </Button>
         </motion.div>
       </div>
 

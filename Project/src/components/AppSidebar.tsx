@@ -2,15 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, Settings, Sparkles, LogOut, User } from "lucide-react";
+import { Home, BookOpen, Settings, Sparkles, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "./ui/button";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { t } = useLanguage();
-  const { signOut } = useAuth();
 
   const navItems = [
     { title: "Dashboard", url: "/", icon: Home },
@@ -18,14 +15,6 @@ export function AppSidebar() {
     { title: t("flashcards"), url: "/flashcards", icon: BookOpen },
     { title: t("settings"), url: "/settings", icon: Settings },
   ];
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
 
   return (
     <>
@@ -66,16 +55,8 @@ export function AppSidebar() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-border/50 space-y-2">
-          <Button
-            onClick={handleSignOut}
-            variant="ghost"
-            className="w-full justify-start text-sm text-muted-foreground hover:text-foreground"
-          >
-            <LogOut size={18} className="mr-2" />
-            Sair
-          </Button>
-          <p className="text-xs text-muted-foreground/60">© 2026 FlashLearn</p>
+        <div className="p-4 border-t border-border/50">
+          <p className="text-xs text-muted-foreground/60 text-center">© 2026 FlashLearn</p>
         </div>
       </aside>
     </>
