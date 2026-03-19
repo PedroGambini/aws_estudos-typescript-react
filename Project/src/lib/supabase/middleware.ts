@@ -30,18 +30,19 @@ export async function updateSession(request: NextRequest) {
   // Refreshing the auth token
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protected routes - todas as rotas exceto /login
-  const isLoginPage = request.nextUrl.pathname === '/login';
+  // Rotas públicas que não precisam de autenticação
+  const publicRoutes = ['/login', '/auth/callback', '/auth/auth-code-error'];
+  const isPublicRoute = publicRoutes.some(route => request.nextUrl.pathname.startsWith(route));
   
-  // Se não está na página de login e não tem usuário, redireciona para login
-  if (!user && !isLoginPage) {
+  // Se não está em rota pública e não tem usuário, redireciona para login
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
   // Se tem usuário e está na página de login, redireciona para home
-  if (user && isLoginPage) {
+  if (user && request.nextUrl.pathname === '/login') {
     const url = request.nextUrl.clone();
     url.pathname = '/';
     return NextResponse.redirect(url);
