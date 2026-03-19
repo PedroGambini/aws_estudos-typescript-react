@@ -786,17 +786,6 @@ export const ec2Level2Questions: Question[] = [
   }
 ];
 
-// Mapa de questões por curso e nível
-export const questionsByLevel: Record<string, Question[]> = {
-  'ec2-level-1': ec2Level1Questions,
-  'ec2-level-2': ec2Level2Questions,
-  'ec2-level-3': ec2Level3Questions,
-  'ec2-level-4': ec2Level4Questions,
-  's3-level-1': s3Level1Questions,
-  'lambda-level-1': lambdaLevel1Questions
-};
-
-
 // ============================================
 // EC2 - NÍVEL 3: MODELOS DE PREÇO
 // ============================================
@@ -1425,3 +1414,16 @@ export const ec2Level4Questions: Question[] = [
     xpReward: 25
   }
 ];
+
+
+// ============================================
+// MAPA DE QUESTÕES POR CURSO E NÍVEL
+// ============================================
+export const questionsByLevel: Record<string, Question[]> = {
+  'ec2-level-1': ec2Level1Questions,
+  'ec2-level-2': ec2Level2Questions,
+  'ec2-level-3': ec2Level3Questions,
+  'ec2-level-4': ec2Level4Questions,
+  's3-level-1': s3Level1Questions,
+  'lambda-level-1': lambdaLevel1Questions
+};
