@@ -10,7 +10,7 @@ export function MobileNav() {
   const { t } = useLanguage();
 
   const navItems = [
-    { title: "Dashboard", url: "/", icon: Home },
+    { title: "Cursos", url: "/", icon: Home },
     { title: t("flashcards"), url: "/flashcards", icon: BookOpen },
     { title: "Perfil", url: "/profile", icon: User },
     { title: t("settings"), url: "/settings", icon: Settings },

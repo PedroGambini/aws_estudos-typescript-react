@@ -10,7 +10,7 @@ export function AppSidebar() {
   const { t } = useLanguage();
 
   const navItems = [
-    { title: "Dashboard", url: "/", icon: Home },
+    { title: "Cursos", url: "/", icon: Home },
     { title: "Meu Perfil", url: "/profile", icon: User },
     { title: t("flashcards"), url: "/flashcards", icon: BookOpen },
     { title: t("settings"), url: "/settings", icon: Settings },
