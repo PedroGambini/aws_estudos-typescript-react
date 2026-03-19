@@ -3,9 +3,22 @@
 export interface Flashcard {
   id: string;
   category: string;
-  question: string;
-  answer: string;
-  proTip?: string;
+  question: {
+    pt: string;
+    en: string;
+  };
+  answer: {
+    pt: string;
+    en: string;
+  };
+  wrongAnswer?: {
+    pt: string;
+    en: string;
+  };
+  proTip?: {
+    pt: string;
+    en: string;
+  };
   codeSnippet?: string;
 }
 

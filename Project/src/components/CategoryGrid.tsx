@@ -1,4 +1,6 @@
-import { useNavigate } from "react-router-dom";
+'use client';
+
+import { useRouter } from "next/navigation";
 import { Server, HardDrive, Database, Shield } from "lucide-react";
 import { categories } from "@/data/flashcards";
 import { motion } from "framer-motion";
@@ -11,7 +13,7 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 export function CategoryGrid() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -25,7 +27,7 @@ export function CategoryGrid() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08, duration: 0.3 }}
-            onClick={() => navigate(`/study/${cat.id}`)}
+            onClick={() => router.push(`/study/${cat.id}`)}
             className="p-5 bg-card border border-border rounded-xl shadow-card cursor-pointer hover:border-primary/30 transition-colors group"
           >
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">

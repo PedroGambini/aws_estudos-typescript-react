@@ -1,75 +1,92 @@
-import { Link, useLocation } from "react-router-dom";
-import { Library, GraduationCap, Settings, LayoutDashboard, Menu, X } from "lucide-react";
-import { useState } from "react";
+'use client';
 
-const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Meus Decks", url: "/decks", icon: Library },
-  { title: "Flashcards", url: "/flashcards", icon: GraduationCap },
-  { title: "Configurações", url: "/settings", icon: Settings },
-];
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, BookOpen, Settings, Sparkles, LogOut } from "lucide-react";
+import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "./ui/button";
 
 export function AppSidebar() {
-  const location = useLocation();
+  const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { t } = useLanguage();
+  const { signOut } = useAuth();
+
+  const navItems = [
+    { title: t("profile"), url: "/", icon: Home },
+    { title: t("flashcards"), url: "/flashcards", icon: BookOpen },
+    { title: t("settings"), url: "/settings", icon: Settings },
+  ];
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg bg-secondary text-secondary-foreground"
-      >
-        {collapsed ? <X size={20} /> : <Menu size={20} />}
-      </button>
-
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col bg-secondary text-secondary-foreground transition-transform duration-200 
+        className={`fixed inset-y-0 left-0 z-40 flex flex-col bg-gradient-to-b from-background via-background to-muted/20 border-r border-border/50 backdrop-blur-xl transition-transform duration-200 
           ${collapsed ? "translate-x-0" : "-translate-x-full"} 
-          lg:translate-x-0 lg:static lg:w-64 w-64`}
+          lg:translate-x-0 w-64`}
       >
-        <div className="p-6 border-b border-sidebar-border">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">A</span>
+        <div className="p-6 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+              <Sparkles size={20} className="text-white" />
             </div>
             <div>
-              <h1 className="font-semibold text-sm tracking-tight">AWS CertPrep</h1>
-              <p className="text-xs opacity-60">Flashcards</p>
+              <h1 className="font-bold text-base tracking-tight bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
+                FlashLearn
+              </h1>
+              <p className="text-xs text-muted-foreground">Study Platform</p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.url;
+            const isActive = pathname === item.url;
             return (
               <Link
                 key={item.title}
-                to={item.url}
+                href={item.url}
                 onClick={() => setCollapsed(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
-                  ${isActive
-                    ? "bg-sidebar-accent border-l-[3px] border-primary font-medium"
-                    : "hover:bg-sidebar-accent/50 opacity-70 hover:opacity-100"
-                  }`}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
+                  isActive
+                    ? "bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400 font-medium shadow-sm"
+                    : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+                }`}
               >
-                <item.icon size={18} />
+                <item.icon size={18} className={isActive ? "text-violet-500" : ""} />
                 <span>{item.title}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-sidebar-border">
-          <p className="text-xs opacity-40">© 2026 AWS CertPrep</p>
+        <div className="p-4 border-t border-border/50 space-y-2">
+          <Button
+            onClick={handleSignOut}
+            variant="ghost"
+            className="w-full justify-start text-sm text-muted-foreground hover:text-foreground"
+          >
+            <LogOut size={18} className="mr-2" />
+            Sair
+          </Button>
+          <p className="text-xs text-muted-foreground/60">© 2026 FlashLearn</p>
         </div>
       </aside>
 
       {/* Mobile overlay */}
       {collapsed && (
         <div
-          className="fixed inset-0 z-30 bg-foreground/20 lg:hidden"
+          className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden"
           onClick={() => setCollapsed(false)}
         />
       )}

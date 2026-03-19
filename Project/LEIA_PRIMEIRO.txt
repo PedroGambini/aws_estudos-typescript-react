@@ -1,0 +1,58 @@
+================================================================================
+                    🚀 COMO RESOLVER O ERRO E COMEÇAR
+================================================================================
+
+VOCÊ ESTÁ VENDO ESTE ERRO:
+  "An error occurred in 'next/font'"
+  "Your custom PostCSS configuration must export a 'plugins' key"
+
+CAUSA:
+  As dependências do Next.js não estão instaladas ainda.
+
+SOLUÇÃO RÁPIDA (3 PASSOS):
+================================================================================
+
+1. ABRA O TERMINAL/CMD/POWERSHELL NA PASTA "Project"
+
+2. EXECUTE UM DESTES COMANDOS:
+
+   Windows (PowerShell):
+   .\install.ps1
+
+   Windows (CMD):
+   install.bat
+
+   Linux/Mac:
+   rm -rf node_modules .next package-lock.json && npm install
+
+3. AGUARDE A INSTALAÇÃO (2-5 minutos)
+
+4. EXECUTE:
+   npm run dev
+
+================================================================================
+
+PRONTO! O erro vai sumir e o projeto vai iniciar em http://localhost:3000
+
+================================================================================
+
+PRÓXIMOS PASSOS:
+
+1. Configure o Supabase (veja START_HERE.md)
+2. Configure Google OAuth (veja START_HERE.md)
+3. Teste a aplicação!
+
+================================================================================
+
+ARQUIVOS IMPORTANTES:
+
+📄 START_HERE.md       - Guia completo passo a passo
+📄 FIX_ERROR.md        - Detalhes sobre este erro
+📄 QUICK_START.md      - Início rápido
+📄 TROUBLESHOOTING.md  - Solução de problemas
+
+================================================================================
+
+DÚVIDAS? Leia FIX_ERROR.md para mais detalhes!
+
+================================================================================

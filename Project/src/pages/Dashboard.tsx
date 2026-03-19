@@ -1,49 +1,66 @@
-import { useNavigate } from "react-router-dom";
+'use client';
+
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight } from "lucide-react";
 import { categories } from "@/data/flashcards";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const totalCards = categories.reduce((sum, c) => sum + c.totalCards, 0);
 
   return (
-    <div className="flex-1 flex items-center justify-center p-8 relative">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
+    <div className="flex-1 flex items-center justify-center p-8 relative bg-gradient-to-br from-background via-background to-violet-50/30 dark:to-violet-950/10">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="text-center max-w-md"
+        className="text-center max-w-2xl"
       >
-        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-          <BookOpen size={32} className="text-primary" />
+        <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-violet-500/30">
+          <BookOpen size={40} className="text-white" />
+          <div className="absolute -top-2 -right-2">
+            <Sparkles size={24} className="text-amber-400 fill-amber-400 animate-pulse" />
+          </div>
         </div>
-        <h2 className="text-2xl font-medium mb-2">Praticar com Flashcards</h2>
-        <p className="text-muted-foreground text-sm mb-8">
-          {totalCards} cards disponíveis em {categories.length} categorias para você revisar e dominar os conceitos AWS.
+        
+        <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
+          Praticar com Flashcards
+        </h2>
+        <p className="text-muted-foreground text-base mb-10">
+          {totalCards} cards disponíveis em {categories.length} categorias para você revisar e dominar os conceitos.
         </p>
 
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-4 mb-10">
           {categories.map((cat, i) => {
             const progress = Math.round((cat.completedCards / cat.totalCards) * 100);
+            const gradients = [
+              "from-blue-500 to-cyan-500",
+              "from-emerald-500 to-green-500",
+              "from-amber-500 to-orange-500",
+              "from-purple-500 to-fuchsia-500"
+            ];
+            
             return (
               <motion.button
                 key={cat.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08, duration: 0.3 }}
-                onClick={() => navigate(`/study/${cat.id}`)}
-                className="p-4 bg-card border border-border rounded-xl shadow-card text-left hover:border-primary/30 transition-colors"
+                onClick={() => router.push(`/study/${cat.id}`)}
+                className="group p-5 bg-card border border-border/50 rounded-2xl shadow-lg hover:shadow-2xl text-left transition-all hover:scale-105 hover:border-violet-500/50 backdrop-blur-sm"
               >
-                <h3 className="font-medium text-sm">{cat.name}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">{cat.totalCards} cards</p>
-                <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients[i]} flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform`}>
+                  <BookOpen size={20} className="text-white" />
+                </div>
+                <h3 className="font-semibold text-base mb-1">{cat.name}</h3>
+                <p className="text-xs text-muted-foreground mb-3">{cat.totalCards} cards</p>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full bg-gradient-to-r ${gradients[i]} rounded-full transition-all duration-500`}
+                    style={{ width: `${progress}%` }} 
+                  />
                 </div>
               </motion.button>
             );
@@ -51,10 +68,11 @@ export default function Dashboard() {
         </div>
 
         <Button
-          onClick={() => navigate(`/study/${categories[0].id}`)}
-          className="rounded-lg h-11 px-8"
+          onClick={() => router.push(`/study/${categories[0].id}`)}
+          className="rounded-xl h-12 px-8 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/25 transition-all hover:scale-105"
         >
           Começar a estudar
+          <ArrowRight size={18} className="ml-2" />
         </Button>
       </motion.div>
     </div>

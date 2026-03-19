@@ -1,5 +1,7 @@
+'use client';
+
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { Flashcard } from "@/components/Flashcard";
@@ -7,8 +9,9 @@ import { flashcards, categories } from "@/data/flashcards";
 import { Button } from "@/components/ui/button";
 
 export default function StudyView() {
-  const { categoryId } = useParams();
-  const navigate = useNavigate();
+  const params = useParams();
+  const router = useRouter();
+  const categoryId = params?.categoryId as string;
   const cards = flashcards.filter((c) => c.category === categoryId);
   const category = categories.find((c) => c.id === categoryId);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -28,7 +31,7 @@ export default function StudyView() {
     if (currentIndex < cards.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      navigate("/");
+      router.push("/");
     }
   };
 
@@ -45,7 +48,7 @@ export default function StudyView() {
 
       {/* Header */}
       <div className="p-4 flex items-center gap-3 border-b border-border">
-        <button onClick={() => navigate("/")} className="text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={() => router.push("/")} className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft size={20} />
         </button>
         <div>

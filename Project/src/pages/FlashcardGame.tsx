@@ -1,10 +1,13 @@
+'use client';
+
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Play, Timer, CheckCircle2, XCircle, Zap, Brain, Target, Bookmark, BookmarkCheck } from "lucide-react";
 import { flashcards } from "@/data/flashcards";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface GameCard {
   id: string;
@@ -35,17 +38,17 @@ type GameState = "config" | "thinking" | "answering" | "result" | "finished";
 type Difficulty = "easy" | "medium" | "hard";
 
 const difficultyConfig = {
-  easy: { time: 30, label: "Fácil", icon: Zap, color: "text-green-500" },
-  medium: { time: 15, label: "Médio", icon: Brain, color: "text-yellow-500" },
-  hard: { time: 10, label: "Difícil", icon: Target, color: "text-red-500" },
+  easy: { thinkTime: 30, answerTime: 50, icon: Zap, color: "text-green-500" },
+  medium: { thinkTime: 15, answerTime: 30, icon: Brain, color: "text-yellow-500" },
+  hard: { thinkTime: 10, answerTime: 20, icon: Target, color: "text-red-500" },
 };
 
 export default function FlashcardGame() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const { language, t } = useLanguage();
   
   // Configurações
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
-  const answeringTime = 10;
   
   // Estado do jogo
   const [gameState, setGameState] = useState<GameState>("config");
@@ -65,14 +68,14 @@ export default function FlashcardGame() {
       .slice(0, 10)
       .map((card) => ({
         id: card.id,
-        question: card.question,
-        correctAnswer: card.answer,
-        wrongAnswer: card.wrongAnswer!,
+        question: typeof card.question === 'string' ? card.question : card.question[language],
+        correctAnswer: typeof card.answer === 'string' ? card.answer : card.answer[language],
+        wrongAnswer: typeof card.wrongAnswer === 'string' ? card.wrongAnswer : card.wrongAnswer![language],
         category: card.category,
       }));
     
     setGameCards(cards);
-  }, []);
+  }, [language]);
 
   // Timer countdown
   useEffect(() => {
@@ -86,14 +89,14 @@ export default function FlashcardGame() {
         // Tempo esgotado
         if (gameState === "thinking") {
           setGameState("answering");
-          setTimer(answeringTime);
+          setTimer(difficultyConfig[difficulty].answerTime);
         } else if (gameState === "answering") {
           // Não respondeu a tempo
           handleAnswer(null);
         }
       }
     }
-  }, [timer, gameState]);
+  }, [timer, gameState, difficulty]);
 
   // Embaralha as opções quando muda de card ou entra no estado "answering"
   useEffect(() => {
@@ -105,7 +108,7 @@ export default function FlashcardGame() {
 
   const handleStartGame = () => {
     setGameState("thinking");
-    setTimer(difficultyConfig[difficulty].time);
+    setTimer(difficultyConfig[difficulty].thinkTime);
     setCurrentCardIndex(0);
     setScore(0);
     setSelectedAnswer(null);
@@ -157,7 +160,7 @@ export default function FlashcardGame() {
       setSelectedAnswer(null);
       setMarkedForReview(false);
       setGameState("thinking");
-      setTimer(difficultyConfig[difficulty].time);
+      setTimer(difficultyConfig[difficulty].thinkTime);
     } else {
       // Salva os resultados no localStorage
       saveGameHistory();
@@ -212,14 +215,14 @@ export default function FlashcardGame() {
       <div className="flex-1 flex flex-col">
         <div className="p-4 flex items-center gap-3 border-b border-border">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => router.push("/")}
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h2 className="text-sm font-medium">Jogo de Flashcards</h2>
-            <p className="text-xs text-muted-foreground">Escolha a dificuldade</p>
+            <h2 className="text-sm font-medium">{t("gameTitle")}</h2>
+            <p className="text-xs text-muted-foreground">{t("chooseDifficulty")}</p>
           </div>
         </div>
 
@@ -234,14 +237,14 @@ export default function FlashcardGame() {
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Play size={32} className="text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Jogo de Flashcards AWS</h2>
+                <h2 className="text-2xl font-bold mb-2">{t("awsGame")}</h2>
                 <p className="text-sm text-muted-foreground">
-                  Teste sua memória sobre serviços AWS
+                  {t("testMemory")}
                 </p>
               </div>
 
               <div className="space-y-4 mb-8">
-                <p className="text-sm font-medium">Escolha a dificuldade:</p>
+                <p className="text-sm font-medium">{t("chooseDifficultyLabel")}</p>
                 
                 {(Object.keys(difficultyConfig) as Difficulty[]).map((diff) => {
                   const config = difficultyConfig[diff];
@@ -265,9 +268,9 @@ export default function FlashcardGame() {
                           <Icon size={20} />
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="font-medium">{config.label}</p>
+                          <p className="font-medium">{t(`${diff}`)}</p>
                           <p className="text-xs text-muted-foreground">
-                            {config.time} segundos para pensar
+                            {t("thinkTime")}: {config.thinkTime}s | {t("answerTime")}: {config.answerTime}s
                           </p>
                         </div>
                         {isSelected && (
@@ -280,19 +283,19 @@ export default function FlashcardGame() {
               </div>
 
               <div className="p-4 rounded-lg bg-muted mb-6">
-                <p className="text-sm font-medium mb-2">Como funciona:</p>
+                <p className="text-sm font-medium mb-2">{t("howWorks")}</p>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• {gameCards.length} flashcards sobre AWS</li>
-                  <li>• Leia a pergunta e pense na resposta</li>
-                  <li>• Após {difficultyConfig[difficulty].time}s, 2 opções aparecem</li>
-                  <li>• Você tem {answeringTime}s para escolher</li>
-                  <li>• Apenas uma resposta está correta!</li>
+                  <li>• {gameCards.length} {t("flashcardsAbout")}</li>
+                  <li>• {t("readQuestion")}</li>
+                  <li>• {t("afterSeconds").replace("{time}", String(difficultyConfig[difficulty].thinkTime))}</li>
+                  <li>• {t("youHave").replace("{time}", String(difficultyConfig[difficulty].answerTime))}</li>
+                  <li>• {t("onlyOneCorrect")}</li>
                 </ul>
               </div>
 
               <Button onClick={handleStartGame} className="w-full" size="lg">
                 <Play size={18} className="mr-2" />
-                Começar Jogo
+                {t("startGame")}
               </Button>
             </Card>
           </motion.div>
@@ -311,13 +314,13 @@ export default function FlashcardGame() {
       <div className="flex-1 flex flex-col">
         <div className="p-4 flex items-center gap-3 border-b border-border">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => router.push("/")}
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h2 className="text-sm font-medium">Resultado Final</h2>
+            <h2 className="text-sm font-medium">{t("finalResult")}</h2>
           </div>
         </div>
 
@@ -331,13 +334,13 @@ export default function FlashcardGame() {
               <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 size={48} className="text-primary" />
               </div>
-              <h1 className="text-3xl font-bold mb-2">Jogo Finalizado!</h1>
+              <h1 className="text-3xl font-bold mb-2">{t("gameFinished")}</h1>
               <p className="text-6xl font-bold text-primary my-6">{finalScore}%</p>
               <p className="text-muted-foreground mb-2">
-                Você acertou {score} de {gameCards.length} perguntas
+                {t("youGot").replace("{score}", String(score)).replace("{total}", String(gameCards.length))}
               </p>
               <p className="text-sm text-muted-foreground mb-8">
-                Dificuldade: {difficultyConfig[difficulty].label}
+                {t("difficulty")}: {t(`${difficulty}`)}
               </p>
             </div>
 
@@ -350,7 +353,7 @@ export default function FlashcardGame() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{score}</p>
-                    <p className="text-xs text-muted-foreground">Acertos</p>
+                    <p className="text-xs text-muted-foreground">{t("hits")}</p>
                   </div>
                 </div>
               </Card>
@@ -362,7 +365,7 @@ export default function FlashcardGame() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{incorrectCards.length}</p>
-                    <p className="text-xs text-muted-foreground">Erros</p>
+                    <p className="text-xs text-muted-foreground">{t("errors")}</p>
                   </div>
                 </div>
               </Card>
@@ -373,7 +376,7 @@ export default function FlashcardGame() {
               <Card className="p-6 mb-6">
                 <div className="flex items-center gap-2 mb-4">
                   <BookmarkCheck size={20} className="text-primary" />
-                  <h3 className="font-semibold">Marcados para Revisão ({markedCards.length})</h3>
+                  <h3 className="font-semibold">{t("markedForReview")} ({markedCards.length})</h3>
                 </div>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {markedCards.map((card, index) => (
@@ -402,10 +405,10 @@ export default function FlashcardGame() {
 
             <div className="flex gap-3 justify-center">
               <Button onClick={handlePlayAgain} size="lg">
-                Jogar Novamente
+                {t("playAgain")}
               </Button>
-              <Button onClick={() => navigate("/")} variant="outline" size="lg">
-                Voltar ao Dashboard
+              <Button onClick={() => router.push("/")} variant="outline" size="lg">
+                {t("backToDashboard")}
               </Button>
             </div>
           </motion.div>
@@ -429,7 +432,7 @@ export default function FlashcardGame() {
       <div className="p-4 flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => router.push("/")}
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft size={20} />
@@ -437,7 +440,7 @@ export default function FlashcardGame() {
           <div>
             <h2 className="text-sm font-medium capitalize">{currentCard.category}</h2>
             <p className="text-xs text-muted-foreground">
-              Card {currentCardIndex + 1} de {gameCards.length}
+              {t("card")} {currentCardIndex + 1} {t("of")} {gameCards.length}
             </p>
           </div>
         </div>
@@ -472,7 +475,7 @@ export default function FlashcardGame() {
                   <div className="mt-6 flex items-center gap-2 text-muted-foreground">
                     <Brain size={16} />
                     <p className="text-sm">
-                      Pense na resposta... {timer}s
+                      {t("thinkAnswer")} {timer}s
                     </p>
                   </div>
                 </div>
@@ -508,7 +511,7 @@ export default function FlashcardGame() {
                 </div>
                 
                 <p className="text-xs text-center text-muted-foreground mt-6">
-                  Escolha uma opção em {timer} segundos
+                  {t("chooseOption").replace("{time}", String(timer))}
                 </p>
               </Card>
             </motion.div>
@@ -528,7 +531,7 @@ export default function FlashcardGame() {
                       <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
                         <CheckCircle2 size={32} className="text-green-500" />
                       </div>
-                      <h3 className="text-2xl font-bold text-green-500">Correto!</h3>
+                      <h3 className="text-2xl font-bold text-green-500">{t("correct")}</h3>
                     </>
                   ) : (
                     <>
@@ -536,7 +539,7 @@ export default function FlashcardGame() {
                         <XCircle size={32} className="text-red-500" />
                       </div>
                       <h3 className="text-2xl font-bold text-red-500">
-                        {selectedAnswer ? "Incorreto!" : "Tempo Esgotado!"}
+                        {selectedAnswer ? t("incorrect") : t("timeUp")}
                       </h3>
                     </>
                   )}
@@ -545,7 +548,7 @@ export default function FlashcardGame() {
                 <div className="space-y-3 mb-6">
                   <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
                     <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-2">
-                      ✓ Resposta correta:
+                      ✓ {t("correctAnswer")}
                     </p>
                     <p className="text-sm leading-relaxed">{currentCard.correctAnswer}</p>
                   </div>
@@ -553,7 +556,7 @@ export default function FlashcardGame() {
                   {selectedAnswer !== currentCard.correctAnswer && (
                     <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
                       <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-2">
-                        ✗ Resposta incorreta:
+                        ✗ {t("wrongAnswer")}
                       </p>
                       <p className="text-sm leading-relaxed">{currentCard.wrongAnswer}</p>
                     </div>
@@ -562,7 +565,7 @@ export default function FlashcardGame() {
 
                 <div className="space-y-3">
                   <Button onClick={handleNextCard} className="w-full" size="lg">
-                    {currentCardIndex + 1 < gameCards.length ? "Próximo Card" : "Ver Resultado"}
+                    {currentCardIndex + 1 < gameCards.length ? t("nextCard") : t("seeResult")}
                   </Button>
                   
                   <Button 
@@ -574,12 +577,12 @@ export default function FlashcardGame() {
                     {markedForReview ? (
                       <>
                         <BookmarkCheck size={18} className="mr-2" />
-                        Marcado para Revisão
+                        {t("markedReview")}
                       </>
                     ) : (
                       <>
                         <Bookmark size={18} className="mr-2" />
-                        Marcar para Revisão
+                        {t("markReview")}
                       </>
                     )}
                   </Button>
@@ -593,7 +596,7 @@ export default function FlashcardGame() {
       {/* Score */}
       <div className="p-4 border-t border-border text-center">
         <p className="text-sm text-muted-foreground">
-          Pontuação: {score} / {currentCardIndex + (gameState === "result" ? 1 : 0)}
+          {t("score")}: {score} / {currentCardIndex + (gameState === "result" ? 1 : 0)}
         </p>
       </div>
     </div>
