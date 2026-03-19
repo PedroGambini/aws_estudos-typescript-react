@@ -1,6 +1,6 @@
 'use client';
 
-import FlashcardGame from '@/pages/FlashcardGame';
+import FlashcardGame from '@/components-pages/FlashcardGame';
 
 export default function FlashcardsPage() {
   return <FlashcardGame />;

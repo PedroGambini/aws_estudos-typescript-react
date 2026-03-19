@@ -1,6 +1,6 @@
 'use client';
 
-import StudyView from '@/pages/StudyView';
+import StudyView from '@/components-pages/StudyView';
 
 export default function StudyPage() {
   return <StudyView />;
