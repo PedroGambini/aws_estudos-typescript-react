@@ -26,10 +26,14 @@ export function useAuth() {
   }, [supabase.auth]);
 
   const signInWithGoogle = async () => {
+    // Usa NEXT_PUBLIC_SITE_URL se definido, senão detecta automaticamente
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const redirectUrl = `${siteUrl}/auth/callback`;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: redirectUrl,
       },
     });
     if (error) throw error;
