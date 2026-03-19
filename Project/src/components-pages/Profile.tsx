@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, 
   Trophy, 
@@ -11,20 +13,27 @@ import {
   TrendingUp,
   Award,
   Zap,
-  Star
+  Star,
+  Edit,
+  Users
 } from "lucide-react";
 import { getGameStats } from "@/utils/gameHistory";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { getProfile, getAllCategoryStats, getGameHistory } from "@/lib/supabase/queries";
+import { EditProfileDialog } from "@/components/EditProfileDialog";
+import { FriendsDialog } from "@/components/FriendsDialog";
 
 export default function Profile() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [friendsDialogOpen, setFriendsDialogOpen] = useState(false);
   const [userData, setUserData] = useState({
     name: "Carregando...",
     email: "...",
     avatar: "?",
+    avatarUrl: "",
     level: 1,
     xp: 0,
     xpToNextLevel: 100,
@@ -34,13 +43,12 @@ export default function Profile() {
   const [categoryStats, setCategoryStats] = useState<any[]>([]);
   const [gameHistory, setGameHistory] = useState<any[]>([]);
 
-  useEffect(() => {
+  const loadUserData = async () => {
     if (!user) return;
-
-    const loadUserData = async () => {
-      try {
-        // Buscar perfil do usuário
-        const profile = await getProfile(user.id);
+    
+    try {
+      // Buscar perfil do usuário
+      const profile = await getProfile(user.id);
         
         // Buscar estatísticas por categoria
         const stats = await getAllCategoryStats(user.id);
@@ -76,6 +84,7 @@ export default function Profile() {
           name: profile?.full_name || user.email?.split('@')[0] || "Usuário",
           email: user.email || "",
           avatar: initials,
+          avatarUrl: profile?.avatar_url || "",
           level,
           xp,
           xpToNextLevel,
@@ -89,6 +98,7 @@ export default function Profile() {
       }
     };
 
+  useEffect(() => {
     loadUserData();
   }, [user]);
 
@@ -130,6 +140,25 @@ export default function Profile() {
               Acompanhe seu progresso e estatísticas
             </p>
           </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFriendsDialogOpen(true)}
+              className="hidden sm:flex"
+            >
+              <Users size={16} className="mr-2" />
+              Amigos
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setFriendsDialogOpen(true)}
+              className="sm:hidden"
+            >
+              <Users size={16} />
+            </Button>
+          </div>
         </div>
 
         {/* Perfil Principal */}
@@ -142,9 +171,12 @@ export default function Profile() {
             <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
               {/* Avatar */}
               <div className="relative mx-auto sm:mx-0">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold shadow-lg shadow-violet-500/30">
-                  {userData.avatar}
-                </div>
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
+                  <AvatarImage src={userData.avatarUrl} />
+                  <AvatarFallback className="text-2xl sm:text-3xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 text-white">
+                    {userData.avatar}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="absolute -bottom-2 -right-2 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center border-4 border-background shadow-lg">
                   <Star size={16} className="text-white fill-white sm:w-5 sm:h-5" />
                 </div>
@@ -161,7 +193,7 @@ export default function Profile() {
                 <p className="text-sm sm:text-base text-muted-foreground mb-4 break-all">{userData.email}</p>
 
                 {/* Barra de Progresso XP */}
-                <div className="space-y-2">
+                <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Progresso para o próximo nível</span>
                     <span className="font-medium">
@@ -177,6 +209,17 @@ export default function Profile() {
                     />
                   </div>
                 </div>
+
+                {/* Edit Button */}
+                <Button
+                  onClick={() => setEditDialogOpen(true)}
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto"
+                >
+                  <Edit size={16} className="mr-2" />
+                  Editar Perfil
+                </Button>
               </div>
             </div>
           </Card>
@@ -392,6 +435,20 @@ export default function Profile() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Dialogs */}
+      <EditProfileDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        currentName={userData.name}
+        currentAvatar={userData.avatarUrl}
+        onUpdate={loadUserData}
+      />
+      
+      <FriendsDialog
+        open={friendsDialogOpen}
+        onOpenChange={setFriendsDialogOpen}
+      />
     </div>
   );
 }

@@ -209,3 +209,171 @@ export async function updateProfile(userId: string, updates: { full_name?: strin
   if (error) throw error;
   return data;
 }
+
+// Avatar Upload
+export async function uploadAvatar(userId: string, file: File) {
+  const supabase = createClient();
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+  const { data, error } = await supabase.storage
+    .from('avatars')
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: true
+    });
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+}
+
+export async function deleteAvatar(avatarUrl: string) {
+  const supabase = createClient();
+  const path = avatarUrl.split('/avatars/')[1];
+  
+  if (!path) return;
+
+  const { error } = await supabase.storage
+    .from('avatars')
+    .remove([path]);
+
+  if (error) throw error;
+}
+
+// Friends Queries
+export async function searchUsers(searchTerm: string, limit = 10) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, avatar_url')
+    .or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
+    .limit(limit);
+
+  if (error) throw error;
+  return data;
+}
+
+export async function sendFriendRequest(userId: string, friendId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('friendships')
+    .insert({
+      user_id: userId,
+      friend_id: friendId,
+      status: 'pending'
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function acceptFriendRequest(friendshipId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('friendships')
+    .update({ status: 'accepted' })
+    .eq('id', friendshipId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function rejectFriendRequest(friendshipId: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('friendships')
+    .delete()
+    .eq('id', friendshipId);
+
+  if (error) throw error;
+}
+
+export async function removeFriend(friendshipId: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('friendships')
+    .delete()
+    .eq('id', friendshipId);
+
+  if (error) throw error;
+}
+
+export async function getFriends(userId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('friendships')
+    .select(`
+      id,
+      status,
+      created_at,
+      user:user_id(id, full_name, email, avatar_url),
+      friend:friend_id(id, full_name, email, avatar_url)
+    `)
+    .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
+    .eq('status', 'accepted');
+
+  if (error) throw error;
+  
+  // Format the data to always show the other person
+  return data.map(friendship => {
+    const isUser = friendship.user.id === userId;
+    return {
+      id: friendship.id,
+      friend: isUser ? friendship.friend : friendship.user,
+      created_at: friendship.created_at
+    };
+  });
+}
+
+export async function getPendingFriendRequests(userId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('friendships')
+    .select(`
+      id,
+      created_at,
+      user:user_id(id, full_name, email, avatar_url)
+    `)
+    .eq('friend_id', userId)
+    .eq('status', 'pending');
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getSentFriendRequests(userId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('friendships')
+    .select(`
+      id,
+      created_at,
+      friend:friend_id(id, full_name, email, avatar_url)
+    `)
+    .eq('user_id', userId)
+    .eq('status', 'pending');
+
+  if (error) throw error;
+  return data;
+}
+
+export async function checkFriendshipStatus(userId: string, friendId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('friendships')
+    .select('id, status, user_id, friend_id')
+    .or(`and(user_id.eq.${userId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${userId})`)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
