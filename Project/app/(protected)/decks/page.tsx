@@ -1,7 +1,7 @@
 'use client';
 
-import Dashboard from '@/components-pages/Dashboard';
+import Courses from '@/components-pages/Courses';
 
 export default function DecksPage() {
-  return <Dashboard />;
+  return <Courses />;
 }
