@@ -1,9 +1,9 @@
 'use client';
 
-import Profile from '@/components-pages/Profile';
+import Courses from '@/components-pages/Courses';
 
 export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
-  return <Profile />;
+  return <Courses />;
 }
