@@ -3,14 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, BookOpen, Settings, Sparkles, LogOut, User } from "lucide-react";
-import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/button";
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
   const { t } = useLanguage();
   const { signOut } = useAuth();
 
@@ -32,9 +30,7 @@ export function AppSidebar() {
   return (
     <>
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col bg-gradient-to-b from-background via-background to-muted/20 border-r border-border/50 backdrop-blur-xl transition-transform duration-200 
-          ${collapsed ? "translate-x-0" : "-translate-x-full"} 
-          lg:translate-x-0 w-64`}
+        className="hidden lg:flex fixed inset-y-0 left-0 z-40 flex-col bg-gradient-to-b from-background via-background to-muted/20 border-r border-border/50 backdrop-blur-xl w-64"
       >
         <div className="p-6 border-b border-border/50">
           <div className="flex items-center gap-3">
@@ -57,7 +53,6 @@ export function AppSidebar() {
               <Link
                 key={item.title}
                 href={item.url}
-                onClick={() => setCollapsed(false)}
                 className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
                   isActive
                     ? "bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400 font-medium shadow-sm"
@@ -83,14 +78,6 @@ export function AppSidebar() {
           <p className="text-xs text-muted-foreground/60">© 2026 FlashLearn</p>
         </div>
       </aside>
-
-      {/* Mobile overlay */}
-      {collapsed && (
-        <div
-          className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden"
-          onClick={() => setCollapsed(false)}
-        />
-      )}
     </>
   );
 }
