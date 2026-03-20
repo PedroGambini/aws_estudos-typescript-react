@@ -111,7 +111,8 @@ export default function Courses() {
           transition={{ delay: 0.1 }}
           className="mb-6 sm:mb-8"
         >
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {/* Container com scroll horizontal no mobile */}
+          <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-violet-500/20 scrollbar-track-transparent hover:scrollbar-thumb-violet-500/40">
             {categories.map((cat) => {
               const Icon = cat.icon;
               const isActive = selectedCategory === cat.id;
@@ -121,14 +122,14 @@ export default function Courses() {
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all
+                    flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all snap-start flex-shrink-0
                     ${isActive 
-                      ? `bg-gradient-to-r ${cat.color} text-white shadow-lg` 
-                      : 'bg-card border border-border hover:border-violet-500/50'
+                      ? `bg-gradient-to-r ${cat.color} text-white shadow-lg scale-105` 
+                      : 'bg-card border border-border hover:border-violet-500/50 hover:scale-105'
                     }
                   `}
                 >
-                  <Icon size={18} />
+                  <Icon size={18} className="flex-shrink-0" />
                   <span className="text-sm font-medium">{cat.name}</span>
                 </button>
               );
@@ -136,8 +137,8 @@ export default function Courses() {
           </div>
         </motion.div>
 
-        {/* Grid de Cursos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Grid de Cursos - Responsivo */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredCourses.map((course, index) => (
             <CourseCard 
               key={course.id} 
@@ -168,21 +169,33 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
+      className="h-full"
     >
-      <Card className="p-6 border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] group">
-        {/* Header do Curso */}
-        <div className="flex items-start gap-4 mb-4">
-          <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-            <Icon size={28} className="text-white" />
+      <Card className="h-full p-4 sm:p-6 border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] group flex flex-col">
+        {/* Header do Curso - Responsivo */}
+        <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 mb-4">
+          {/* Ícone e Medalha em linha no mobile */}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform flex-shrink-0`}>
+              <Icon size={24} className="sm:w-7 sm:h-7 text-white" />
+            </div>
+            
+            {course.medal && (
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0 sm:hidden">
+                <Trophy size={18} className="text-white" />
+              </div>
+            )}
           </div>
           
-          <div className="flex-1">
-            <h3 className="text-xl font-bold mb-1">{course.name.pt}</h3>
-            <p className="text-sm text-muted-foreground">{course.description.pt}</p>
+          {/* Texto do Curso */}
+          <div className="flex-1 min-w-0 w-full sm:w-auto">
+            <h3 className="text-lg sm:text-xl font-bold mb-1 truncate">{course.name.pt}</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{course.description.pt}</p>
           </div>
 
+          {/* Medalha desktop */}
           {course.medal && (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+            <div className="hidden sm:flex w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 items-center justify-center shadow-lg flex-shrink-0">
               <Trophy size={20} className="text-white" />
             </div>
           )}
@@ -190,7 +203,7 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
 
         {/* Progresso */}
         <div className="mb-4">
-          <div className="flex items-center justify-between text-sm mb-2">
+          <div className="flex items-center justify-between text-xs sm:text-sm mb-2">
             <span className="text-muted-foreground">Progresso</span>
             <span className="font-medium">
               {course.completedLevels} / {course.totalLevels} níveis
@@ -199,10 +212,10 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
           <Progress value={progress} className="h-2" />
         </div>
 
-        {/* Níveis */}
-        <div className="space-y-2 mb-4">
-          <p className="text-sm font-medium text-muted-foreground mb-2">Níveis disponíveis:</p>
-          <div className="grid grid-cols-5 gap-2">
+        {/* Níveis - Grid responsivo */}
+        <div className="space-y-2 mb-4 flex-1">
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">Níveis disponíveis:</p>
+          <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
             {course.levels.map((level) => {
               const isCompleted = course.completedLevels >= level.levelNumber;
               const isUnlocked = level.unlocked;
@@ -212,7 +225,7 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
                 <div
                   key={level.id}
                   className={`
-                    relative aspect-square rounded-lg flex items-center justify-center text-sm font-bold
+                    relative aspect-square rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold
                     ${isCompleted 
                       ? `bg-gradient-to-br ${difficultyColors[level.difficulty]} text-white shadow-md` 
                       : isUnlocked
@@ -222,15 +235,15 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
                   `}
                 >
                   {isCompleted ? (
-                    <Star size={16} className="fill-white" />
+                    <Star size={14} className="sm:w-4 sm:h-4 fill-white" />
                   ) : isUnlocked ? (
                     level.levelNumber
                   ) : (
-                    <Lock size={14} />
+                    <Lock size={12} className="sm:w-3.5 sm:h-3.5" />
                   )}
                   
                   {isCurrent && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-violet-500 animate-pulse" />
+                    <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-violet-500 animate-pulse" />
                   )}
                 </div>
               );
@@ -240,26 +253,26 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
 
         {/* Próximo Nível Info */}
         {nextLevel && (
-          <div className="mb-4 p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
-            <div className="flex items-center justify-between">
-              <div>
+          <div className="mb-4 p-2.5 sm:p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
                 <p className="text-xs text-muted-foreground">Próximo nível</p>
-                <p className="text-sm font-medium">{nextLevel.name.pt}</p>
+                <p className="text-xs sm:text-sm font-medium truncate">{nextLevel.name.pt}</p>
               </div>
-              <Badge className={`bg-gradient-to-r ${difficultyColors[nextLevel.difficulty]} text-white border-0`}>
+              <Badge className={`bg-gradient-to-r ${difficultyColors[nextLevel.difficulty]} text-white border-0 text-xs flex-shrink-0`}>
                 {difficultyLabels[nextLevel.difficulty].pt}
               </Badge>
             </div>
           </div>
         )}
 
-        {/* Botão de Ação */}
+        {/* Botão de Ação - Full width no mobile */}
         <Button
           onClick={onSelect}
-          className={`w-full bg-gradient-to-r ${course.color} hover:opacity-90 text-white shadow-lg`}
+          className={`w-full bg-gradient-to-r ${course.color} hover:opacity-90 text-white shadow-lg text-sm sm:text-base py-2.5 sm:py-2`}
         >
           {course.completedLevels === 0 ? 'Começar Curso' : 'Continuar'}
-          <ChevronRight size={18} className="ml-2" />
+          <ChevronRight size={18} className="ml-2 flex-shrink-0" />
         </Button>
       </Card>
     </motion.div>
