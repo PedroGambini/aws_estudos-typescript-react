@@ -65,7 +65,7 @@ export default function Courses() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
+      <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-violet-600" />
           <p className="text-muted-foreground">Carregando cursos...</p>
@@ -88,8 +88,8 @@ export default function Courses() {
     : courses.filter(c => c.category === selectedCategory);
 
   return (
-    <div className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto bg-gradient-to-br from-background via-background to-violet-50/30 dark:to-violet-950/10 min-h-screen">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto bg-gradient-to-br from-background via-background to-violet-50/30 dark:to-violet-950/10">
+      <div className="max-w-7xl mx-auto pb-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

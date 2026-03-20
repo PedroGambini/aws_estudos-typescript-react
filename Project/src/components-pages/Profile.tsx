@@ -131,8 +131,8 @@ export default function Profile() {
   }
 
   return (
-    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gradient-to-br from-background via-background to-violet-50/30 dark:to-violet-950/10 min-h-screen">
-      <div className="max-w-6xl mx-auto">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gradient-to-br from-background via-background to-violet-50/30 dark:to-violet-950/10">
+      <div className="max-w-6xl mx-auto pb-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 sm:mb-8">
           <div>
