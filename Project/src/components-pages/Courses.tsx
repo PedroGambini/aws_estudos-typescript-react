@@ -88,18 +88,18 @@ export default function Courses() {
     : courses.filter(c => c.category === selectedCategory);
 
   return (
-    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gradient-to-br from-background via-background to-violet-50/30 dark:to-violet-950/10 min-h-screen">
+    <div className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto bg-gradient-to-br from-background via-background to-violet-50/30 dark:to-violet-950/10 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 sm:mb-8"
+          className="mb-4 sm:mb-6 lg:mb-8"
         >
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
             Cursos AWS
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Escolha um curso e comece sua jornada de aprendizado
           </p>
         </motion.div>
@@ -109,10 +109,10 @@ export default function Courses() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6 sm:mb-8"
+          className="mb-4 sm:mb-6 lg:mb-8"
         >
           {/* Container com scroll horizontal no mobile */}
-          <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-violet-500/20 scrollbar-track-transparent hover:scrollbar-thumb-violet-500/40">
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-violet-500/20 scrollbar-track-transparent hover:scrollbar-thumb-violet-500/40">
             {categories.map((cat) => {
               const Icon = cat.icon;
               const isActive = selectedCategory === cat.id;
@@ -122,15 +122,15 @@ export default function Courses() {
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`
-                    flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all snap-start flex-shrink-0
+                    flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl whitespace-nowrap transition-all snap-start flex-shrink-0 text-sm
                     ${isActive 
-                      ? `bg-gradient-to-r ${cat.color} text-white shadow-lg scale-105` 
-                      : 'bg-card border border-border hover:border-violet-500/50 hover:scale-105'
+                      ? `bg-gradient-to-r ${cat.color} text-white shadow-lg` 
+                      : 'bg-card border border-border hover:border-violet-500/50'
                     }
                   `}
                 >
-                  <Icon size={18} className="flex-shrink-0" />
-                  <span className="text-sm font-medium">{cat.name}</span>
+                  <Icon size={16} className="flex-shrink-0" />
+                  <span className="font-medium">{cat.name}</span>
                 </button>
               );
             })}
@@ -138,7 +138,7 @@ export default function Courses() {
         </motion.div>
 
         {/* Grid de Cursos - Responsivo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {filteredCourses.map((course, index) => (
             <CourseCard 
               key={course.id} 
@@ -171,51 +171,44 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
       transition={{ delay: index * 0.05 }}
       className="h-full"
     >
-      <Card className="h-full p-4 sm:p-6 border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] group flex flex-col">
-        {/* Header do Curso - Responsivo */}
-        <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 mb-4">
-          {/* Ícone e Medalha em linha no mobile */}
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform flex-shrink-0`}>
-              <Icon size={24} className="sm:w-7 sm:h-7 text-white" />
-            </div>
-            
-            {course.medal && (
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0 sm:hidden">
-                <Trophy size={18} className="text-white" />
-              </div>
-            )}
+      <Card className="h-full p-3 sm:p-4 lg:p-6 border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] group flex flex-col">
+        {/* Header do Curso - Compacto no mobile */}
+        <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+          {/* Ícone */}
+          <div className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-lg sm:rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform flex-shrink-0`}>
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" />
           </div>
           
           {/* Texto do Curso */}
-          <div className="flex-1 min-w-0 w-full sm:w-auto">
-            <h3 className="text-lg sm:text-xl font-bold mb-1 truncate">{course.name.pt}</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{course.description.pt}</p>
-          </div>
-
-          {/* Medalha desktop */}
-          {course.medal && (
-            <div className="hidden sm:flex w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 items-center justify-center shadow-lg flex-shrink-0">
-              <Trophy size={20} className="text-white" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold leading-tight">{course.name.pt}</h3>
+              {/* Medalha */}
+              {course.medal && (
+                <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
+                </div>
+              )}
             </div>
-          )}
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mt-0.5 sm:mt-1">{course.description.pt}</p>
+          </div>
         </div>
 
         {/* Progresso */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-xs sm:text-sm mb-2">
+        <div className="mb-3 sm:mb-4">
+          <div className="flex items-center justify-between text-xs sm:text-sm mb-1.5 sm:mb-2">
             <span className="text-muted-foreground">Progresso</span>
-            <span className="font-medium">
-              {course.completedLevels} / {course.totalLevels} níveis
+            <span className="font-medium text-xs sm:text-sm">
+              {course.completedLevels}/{course.totalLevels}
             </span>
           </div>
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} className="h-1.5 sm:h-2" />
         </div>
 
-        {/* Níveis - Grid responsivo */}
-        <div className="space-y-2 mb-4 flex-1">
-          <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">Níveis disponíveis:</p>
-          <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+        {/* Níveis - Grid compacto */}
+        <div className="mb-3 sm:mb-4 flex-1">
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 sm:mb-2">Níveis:</p>
+          <div className="grid grid-cols-5 gap-1 sm:gap-1.5 lg:gap-2">
             {course.levels.map((level) => {
               const isCompleted = course.completedLevels >= level.levelNumber;
               const isUnlocked = level.unlocked;
@@ -225,7 +218,7 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
                 <div
                   key={level.id}
                   className={`
-                    relative aspect-square rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold
+                    relative aspect-square rounded-md sm:rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold
                     ${isCompleted 
                       ? `bg-gradient-to-br ${difficultyColors[level.difficulty]} text-white shadow-md` 
                       : isUnlocked
@@ -235,15 +228,15 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
                   `}
                 >
                   {isCompleted ? (
-                    <Star size={14} className="sm:w-4 sm:h-4 fill-white" />
+                    <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 fill-white" />
                   ) : isUnlocked ? (
-                    level.levelNumber
+                    <span className="text-xs sm:text-sm">{level.levelNumber}</span>
                   ) : (
-                    <Lock size={12} className="sm:w-3.5 sm:h-3.5" />
+                    <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
                   )}
                   
                   {isCurrent && (
-                    <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-violet-500 animate-pulse" />
+                    <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-violet-500 animate-pulse" />
                   )}
                 </div>
               );
@@ -251,28 +244,30 @@ function CourseCard({ course, index, onSelect }: { course: Course; index: number
           </div>
         </div>
 
-        {/* Próximo Nível Info */}
+        {/* Próximo Nível Info - Compacto */}
         {nextLevel && (
-          <div className="mb-4 p-2.5 sm:p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
+          <div className="mb-3 sm:mb-4 p-2 sm:p-2.5 lg:p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-muted-foreground">Próximo nível</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Próximo</p>
                 <p className="text-xs sm:text-sm font-medium truncate">{nextLevel.name.pt}</p>
               </div>
-              <Badge className={`bg-gradient-to-r ${difficultyColors[nextLevel.difficulty]} text-white border-0 text-xs flex-shrink-0`}>
+              <Badge className={`bg-gradient-to-r ${difficultyColors[nextLevel.difficulty]} text-white border-0 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 flex-shrink-0`}>
                 {difficultyLabels[nextLevel.difficulty].pt}
               </Badge>
             </div>
           </div>
         )}
 
-        {/* Botão de Ação - Full width no mobile */}
+        {/* Botão de Ação - Full width */}
         <Button
           onClick={onSelect}
-          className={`w-full bg-gradient-to-r ${course.color} hover:opacity-90 text-white shadow-lg text-sm sm:text-base py-2.5 sm:py-2`}
+          className={`w-full bg-gradient-to-r ${course.color} hover:opacity-90 text-white shadow-lg text-xs sm:text-sm lg:text-base py-2 sm:py-2.5 h-auto`}
         >
-          {course.completedLevels === 0 ? 'Começar Curso' : 'Continuar'}
-          <ChevronRight size={18} className="ml-2 flex-shrink-0" />
+          <span className="flex items-center justify-center gap-1.5 sm:gap-2">
+            {course.completedLevels === 0 ? 'Começar Curso' : 'Continuar'}
+            <ChevronRight className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+          </span>
         </Button>
       </Card>
     </motion.div>
